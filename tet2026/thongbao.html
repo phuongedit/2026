@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Thử Thách Lì Xì — Multiple Choice (Tết)</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhai&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Baloo Bhai", Arial;
+    background-image: url("imgs/img-tet5.jpg");
+    background-size: cover;
+    background-position: center;
+    color:#fff;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    padding:28px;
+    overflow-x:hidden;
+  }
+
+  .overlay { position:fixed; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.55)); pointer-events:none; z-index:1; }
+
+  .dec-left, .dec-right{ position:fixed; top:6%; width:26%; height:auto; z-index:2; pointer-events:none; }
+  .dec-left{ left:-8% } .dec-right{ right:-8% }
+
+  .wrap{ position:relative; z-index:10; display:flex; align-items:center; justify-content:center; min-height:100vh; }
+  .card{
+    width:100%; max-width:1000px;
+    background: linear-gradient(180deg, rgba(255,246,230,0.06), rgba(255,239,220,0.02));
+    border-radius:14px;
+    padding:20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    border: 1px solid rgba(246,200,95,0.08);
+    backdrop-filter: blur(4px);
+  }
+
+  h1{ font-family:"Baloo Bhai", serif; color:#ffd46b; margin-bottom:8px; text-shadow:0 6px 18px rgba(0,0,0,0.6); }
+  .info{ color:#ffe9c7; margin:6px 0 12px 0; font-size:0.98rem }
+
+  .modes{ display:flex; gap:12px; margin:12px 0; flex-wrap:wrap; }
+  .mode-btn{ padding:10px 14px; border-radius:10px; border:none; cursor:pointer; font-weight:700; background:#c92a2a; color:#fff }
+  .mode-btn.ghost{ background:transparent; border:1px solid rgba(255,255,255,0.06); color:#ffd9a6 }
+
+  /* submode row for Dạng 1 */
+  .submodes{ display:flex; gap:8px; margin-top:8px; }
+  .submode-btn{ padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:#ffd9a6; cursor:pointer; font-weight:700 }
+  .submode-btn.active{ background:#ffd46b; color:#4a1b00; border: none }
+
+  .panel{ display:grid; grid-template-columns:1fr 380px; gap:18px; margin-top:14px; }
+  .left{ padding:12px; background: linear-gradient(180deg, rgba(0,0,0,0.06), rgba(255,255,255,0.02)); border-radius:10px; min-height:260px; }
+  .right{ padding:12px; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03)); border-radius:10px; color:#fff; }
+
+  .question-box{ min-height:140px; display:flex; align-items:center; justify-content:center; padding:12px; border-radius:8px; background: rgba(255,255,255,0.02); font-size:1.15rem; text-align:center; color:#fff9 }
+
+  .choices{ display:flex; flex-direction:column; gap:10px; margin-top:12px; }
+  .choice-btn{ padding:12px 14px; border-radius:10px; border:none; background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.12)); color:#fff; font-weight:700; cursor:pointer; text-align:left; box-shadow: 0 6px 18px rgba(0,0,0,0.45); transition: transform .12s ease, box-shadow .12s ease; }
+  .choice-btn:hover{ transform: translateY(-4px); box-shadow: 0 12px 26px rgba(0,0,0,0.6) }
+  .choice-btn.correct{ background: linear-gradient(90deg,#8ef59a,#6bd07a); color:#08310b; }
+  .choice-btn.wrong{ background: linear-gradient(90deg,#ff9b9b,#ff6b6b); color:#3f0000; }
+  .choice-btn[disabled]{ opacity:0.7; cursor:not-allowed }
+
+  .controls{ margin-top:12px; display:flex; gap:8px; align-items:center; }
+  .action{ padding:10px 12px; border-radius:10px; border:none; background:#ffd46b; color:#4a1b00; font-weight:700; cursor:pointer }
+  .ghost{ background:#b1b1b1; color:#1a1a1a }
+  .small{ font-size:0.95rem; color:#ffd9a6 }
+
+  .stat{ font-size:1rem; margin-bottom:8px; color:#ffe9c7 }
+  .popup{ position:fixed; left:50%; top:16%; transform:translateX(-50%); background:#fff; padding:16px 20px; border-radius:10px; color:#7a0000; font-weight:800; display:none; z-index:9999; box-shadow: 0 18px 46px rgba(0,0,0,0.45) }
+  .popup.show{ display:block; animation:popup .28s ease }
+  @keyframes popup{ from{ transform:translate(-50%,-10%) scale(.8); opacity:0 } to { transform:translate(-50%,0) scale(1); opacity:1 } }
+
+  .storage { margin-top:12px; font-size:0.9rem; color:#ffd9a6; word-break:break-all }
+
+  .disabled-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.72); z-index:9998; display:none; align-items:center; justify-content:center; color:#fff; text-align:center; padding:24px; }
+  .disabled-overlay .box{ background: rgba(255,255,255,0.05); padding:20px; border-radius:12px; border:1px solid rgba(255,255,255,0.06); max-width:680px }
+  .disabled-overlay h2{ color:#ffd46b; margin-bottom:8px }
+
+  .redirect-overlay { position: fixed; inset:0; display:none; z-index:99999; align-items:center; justify-content:center; background: rgba(4,4,4,0.6); }
+  .redirect-box { background: linear-gradient(180deg,#fff,#fff); color:#220000; padding:28px 30px; border-radius:12px; text-align:center; box-shadow: 0 30px 80px rgba(0,0,0,0.6); max-width:520px; }
+  .redirect-box h2{ color:#ac1a1a; margin-bottom:8px; font-family:"Baloo Bhai", serif; }
+  .redirect-count{ font-size:48px; font-weight:800; color:#c92a2a; margin-top:6px; }
+
+  /* timer bar */
+  .timer-row{ margin-top:12px; display:flex; align-items:center; gap:8px; }
+  .time-label{ font-size:0.95rem; color:#ffd9a6; min-width:100px }
+  .time-bar{ flex:1; height:12px; background:rgba(255,255,255,0.08); border-radius:8px; overflow:hidden; }
+  .time-fill{ height:100%; width:0%; background:linear-gradient(90deg,#ffde6a,#ff7a7a); transition:width 0.2s linear; }
+
+  @media (max-width:920px){ .panel{ grid-template-columns:1fr } .right{ order:2 } .dec-left, .dec-right{ display:none } .redirect-box { padding:20px } .redirect-count{ font-size:36px } .time-label{ min-width:70px } }
+</style>
+</head>
+
+<body>
+  <div class="overlay" aria-hidden="true"></div>
+  <img class="dec-left" src="imgs/hoa-dao2.png" alt="" aria-hidden="true"/>
+  <img class="dec-right" src="imgs/hoa-mai.png" alt="" aria-hidden="true"/>
+
+  <div class="wrap">
+    <div class="card" role="main" aria-live="polite">
+      <h1>Thử Thách Lì Xì — Multiple Choice (Tết)</h1>
+      <div class="info">Chọn Dạng 1 (có 2 biến thể) hoặc Dạng 2 (15 câu). Mỗi chơi có 1 cơ hội cuối để reset câu.</div>
+
+      <div class="modes" role="tablist" aria-label="Chọn chế độ">
+        <button id="btnType1" class="mode-btn" aria-pressed="false">Dạng 1 — Lì xì nhanh</button>
+        <button id="btnType2" class="mode-btn ghost" aria-pressed="false">Dạng 2 — Thử thách 15 câu</button>
+      </div>
+
+      <!-- submode selector (shown when Dạng 1 selected) -->
+      <div id="submodeRow" class="submodes" style="display:none">
+        <button id="subA" class="submode-btn active" data-key="A">1A — Nhanh (+500₫)</button>
+        <button id="subB" class="submode-btn" data-key="B">1B — Thách (12s) (+800₫)</button>
+      </div>
+
+      <div class="panel">
+        <div class="left">
+          <div class="question-box" id="questionBox">Chọn chế độ để bắt đầu chơi.</div>
+
+          <div class="timer-row" id="timerRow" style="display:none">
+            <div class="time-label" id="timeLabel">Thời gian còn lại:</div>
+            <div class="time-bar"><div id="timeFill" class="time-fill"></div></div>
+          </div>
+
+          <div class="choices" id="choices" style="display:none" aria-live="polite" aria-atomic="true"></div>
+
+          <div class="controls" id="answerControls" style="display:none">
+            <button id="nextBtn" class="action ghost" style="display:none">Câu tiếp</button>
+          </div>
+
+          <div style="margin-top:12px; color:#ffd9a6; font-size:0.95rem">Ghi chú: mỗi người chỉ chơi mỗi dạng một lần (ưu tiên theo IP nếu server bật). Nếu muốn chơi lại xóa localStorage.</div>
+        </div>
+
+        <div class="right">
+          <div class="stat">Trạng thái người chơi</div>
+          <div class="small">Câu đã thử: <span id="tried">0</span></div>
+          <div class="small">Câu đúng: <span id="correct">0</span></div>
+          <div class="small">Câu sai: <span id="wrong">0</span></div>
+          <div class="small">Số tiền tạm tính (Dạng 1): <strong id="money">0</strong>₫</div>
+
+          <div style="margin-top:12px">
+            <button id="btnShowResult" class="action" style="width:100%">Xem kết quả / Kết thúc</button>
+          </div>
+
+          <div class="storage" id="storageInfo"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="popup" id="popup" role="alert" aria-live="assertive"></div>
+
+  <div id="disabledOverlay" class="disabled-overlay" role="dialog" aria-live="polite">
+    <div class="box">
+      <h2>Đã chơi rồi</h2>
+      <p id="disabledMsg">IP hoặc thiết bị này đã chơi trước đó — mỗi IP chỉ được chơi 1 lần.</p>
+    </div>
+  </div>
+
+  <div id="redirectOverlay" class="redirect-overlay" aria-hidden="true">
+    <div class="redirect-box" role="alert" aria-live="assertive">
+      <h2>Chúc mừng!</h2>
+      <div>Bạn trả lời đúng toàn bộ. Đợi xíu — bạn sẽ được chuyển hướng qua trang hái lộc trong vòng</div>
+      <div class="redirect-count" id="redirectCount">3</div>
+    </div>
+  </div>
+
+  <!-- audio -->
+  <audio id="tetMusic" preload="auto" loop
+    src="https://ia800606.us.archive.org/27/items/tet-dong-day-khoa-tet-viet-nct-choice-v.-a-playlist-nhac-cua-tui/T%E1%BA%BFt%20%C4%90ong%20%C4%90%E1%BA%A6y%20-%20KHOA%20-%20T%E1%BA%BFt%20Vi%E1%BB%87t-%20NCT%20Choice%20-%20V.A%20-%20Playlist%20NhacCuaTui.mp3"></audio>
+
+<script>
+/* ================= CONFIG ================ */
+const API_BASE = ''; // set server if available
+const STORAGE_KEY = 'puzzle_mc_v1';
+const MONEY_A = 500; // variant A
+const MONEY_B = 800; // variant B
+const TIME_B = 12;   // seconds for variant B questions
+const MODE2_COUNT = 15;
+const MODE1_COUNT = 10;
+
+/* ================ UI helpers =============== */
+const popupEl = document.getElementById('popup');
+function showPopup(msg, ms=3000){ popupEl.textContent = msg; popupEl.classList.add('show'); setTimeout(()=> popupEl.classList.remove('show'), ms); }
+
+/* ================ IP guard (same as before) =============== */
+async function getPublicIP(){ try{ const r=await fetch('https://api.ipify.org?format=json',{cache:'no-store'}); if(!r.ok) throw 0; const j=await r.json(); return j.ip;}catch(e){return null;} }
+async function checkWithServer(ip){ if(!API_BASE) throw new Error('no-server'); const r=await fetch(API_BASE + '/api/check-play',{method:'POST',headers:{'Content-Type':'application/json'},body: JSON.stringify({ip})}); if(!r.ok) throw new Error('server'); return r.json(); }
+async function recordPlayOnServer(ip, mode){ if(!API_BASE) return {ok:false}; try{ const r=await fetch(API_BASE + '/api/record-play',{method:'POST',headers:{'Content-Type':'application/json'},body: JSON.stringify({ip,mode})}); if(!r.ok) return {ok:false}; return r.json(); }catch(e){ return {ok:false}; } }
+function getLocalPlayedIPs(){ try{ return JSON.parse(localStorage.getItem('played_ips_v1')||'[]'); }catch(e){ return []; } }
+function saveLocalPlayedIP(ip){ try{ const arr = getLocalPlayedIPs(); if(!arr.includes(ip)){ arr.push(ip); localStorage.setItem('played_ips_v1', JSON.stringify(arr)); } }catch(e){ } }
+function disableUI(message){ document.getElementById('disabledOverlay').style.display = 'flex'; if(message) document.getElementById('disabledMsg').textContent = message; try{ document.getElementById('btnType1').disabled=true; document.getElementById('btnType2').disabled=true; Array.from(document.querySelectorAll('.choice-btn, .action, .mode-btn, .submode-btn')).forEach(n=>n.disabled=true);}catch(e){} }
+async function savePlayed(ip, mode){ if(!ip) return false; if(API_BASE){ const r=await recordPlayOnServer(ip,mode); if(r && r.ok) return true; saveLocalPlayedIP(ip); return false; } else { saveLocalPlayedIP(ip); return false; } }
+
+window.__IP_GUARD = { ip:null, checked:false, allowed:true };
+(async function initIPGuard(){ const ip = await getPublicIP(); window.__IP_GUARD.ip = ip || 'unknown'; if(!ip){ const arr=getLocalPlayedIPs(); if(arr.includes('unknown')){ disableUI('Bạn đã chơi rồi (local fallback).'); window.__IP_GUARD.checked=true; window.__IP_GUARD.allowed=false; return } window.__IP_GUARD.checked=true; window.__IP_GUARD.allowed=true; return } if(API_BASE){ try{ const r=await checkWithServer(ip); if(!r.allowed){ disableUI(r.reason||'IP đã chơi'); window.__IP_GUARD.checked=true; window.__IP_GUARD.allowed=false; return } window.__IP_GUARD.checked=true; window.__IP_GUARD.allowed=true; return }catch(e){ const arr=getLocalPlayedIPs(); if(arr.includes(ip)){ disableUI('Bạn đã chơi rồi (local fallback).'); window.__IP_GUARD.checked=true; window.__IP_GUARD.allowed=false; return } window.__IP_GUARD.checked=true; window.__IP_GUARD.allowed=true; return } } else { const arr=getLocalPlayedIPs(); if(arr.includes(ip)){ disableUI('Bạn đã chơi rồi (local fallback).'); window.__IP_GUARD.checked=true; window.__IP_GUARD.allowed=false; return } window.__IP_GUARD.checked=true; window.__IP_GUARD.allowed=true; return } })();
+
+/* ================ Music autoplay (same behaviour) =============== */
+(function(){
+  const music = document.getElementById('tetMusic');
+  if (!music) return;
+  music.volume = 0.0;
+  music.muted = false;
+  music.loop = true;
+  let played = false;
+  let fadeInterval = null;
+  function fadeTo(targetVol, duration = 1200){
+    clearInterval(fadeInterval);
+    const stepMs = 60;
+    const steps = Math.max(1, Math.round(duration / stepMs));
+    const startVol = Number(music.volume) || 0;
+    const delta = (targetVol - startVol) / steps;
+    let cur = 0;
+    fadeInterval = setInterval(() => {
+      cur++;
+      let v = startVol + delta * cur;
+      v = Math.min(Math.max(v, 0), 1);
+      music.volume = v;
+      if (cur >= steps) {
+        clearInterval(fadeInterval);
+        music.volume = targetVol;
+      }
+    }, stepMs);
+  }
+  function attachUserGesturePlay() {
+    const gestureHandler = () => {
+      document.removeEventListener('pointerdown', gestureHandler, {capture:true});
+      document.removeEventListener('keydown', gestureHandler, {capture:true});
+      music.play().then(()=> {
+        played = true;
+        fadeTo(0.85, 1200);
+      }).catch(()=> {
+        try { music.muted = false; music.volume = 0.5; music.play().then(()=> fadeTo(0.85,1200)).catch(()=>{}); } catch(e){}
+      });
+    };
+    document.addEventListener('pointerdown', gestureHandler, {capture:true, passive:true});
+    document.addEventListener('keydown', gestureHandler, {capture:true, passive:true});
+  }
+  function tryAutoplay() {
+    music.volume = 0.0;
+    const p = music.play();
+    if (p !== undefined) {
+      p.then(() => {
+        played = true;
+        fadeTo(0.85, 1800);
+      }).catch(() => {
+        attachUserGesturePlay();
+      });
+    } else {
+      attachUserGesturePlay();
+    }
+  }
+  window.addEventListener('load', () => {
+    tryAutoplay();
+    setTimeout(() => { if (!played) attachUserGesturePlay(); }, 1500);
+  });
+})();
+
+/* ================ WebAudio for feedback =============== */
+const AudioEngine = (function(){
+  let ctx = null;
+  function ensure(){
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended'){
+      const resume = ()=>{ ctx.resume().catch(()=>{}); document.removeEventListener('pointerdown', resume); document.removeEventListener('keydown', resume); };
+      document.addEventListener('pointerdown', resume, {capture:true, passive:true});
+      document.addEventListener('keydown', resume, {capture:true, passive:true});
+    }
+    return ctx;
+  }
+  function beep(freq, duration=0.12, type='sine', gain=0.12){
+    try {
+      const c = ensure();
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.type = type;
+      o.frequency.value = freq;
+      g.gain.value = gain;
+      o.connect(g); g.connect(c.destination);
+      o.start();
+      g.gain.setValueAtTime(gain, c.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + duration);
+      o.stop(c.currentTime + duration + 0.02);
+    } catch(e){}
+  }
+  function playCorrect(){ beep(880,0.08,'sine',0.08); setTimeout(()=>beep(1100,0.10,'sine',0.09),110); }
+  function playWrong(){ try{ const c=ensure(); const o=c.createOscillator(); const g=c.createGain(); o.type='square'; o.frequency.value=220; g.gain.value=0.14; o.connect(g); g.connect(c.destination); o.start(); o.frequency.exponentialRampToValueAtTime(80, c.currentTime + 0.14); g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + 0.18); o.stop(c.currentTime + 0.2);}catch(e){} }
+  function playSuccess(){ beep(660,0.09,'sine',0.09); setTimeout(()=>beep(880,0.09,'sine',0.09),100); setTimeout(()=>beep(1100,0.12,'sine',0.10),210); }
+  return { playCorrect, playWrong, playSuccess, ensure };
+})();
+function playSound(type){ if (type === 'correct') AudioEngine.playCorrect(); else if (type === 'wrong') AudioEngine.playWrong(); else if (type === 'success') AudioEngine.playSuccess(); }
+AudioEngine.ensure();
+
+/* ================ Redirect overlay =============== */
+function showRedirectOverlay(seconds = 3, url = '/hailoc.html'){
+  const overlay = document.getElementById('redirectOverlay');
+  const countEl = document.getElementById('redirectCount');
+  let t = seconds;
+  countEl.textContent = t;
+  overlay.style.display = 'flex';
+  try {
+    document.getElementById('btnType1').disabled = true;
+    document.getElementById('btnType2').disabled = true;
+    Array.from(document.querySelectorAll('.choice-btn, .action, .mode-btn, .submode-btn')).forEach(n=>n.disabled=true);
+  } catch(e){}
+  const timer = setInterval(() => {
+    t--;
+    countEl.textContent = Math.max(0, t);
+    if (t <= 0){
+      clearInterval(timer);
+      setTimeout(()=> { window.location.href = url; }, 300);
+    }
+  }, 1000);
+}
+
+/* ================ QUESTION BANK (Tet-themed) =============== */
+const TET_BANK = [
+  {q:"Món bánh gói vuông bằng lá dong thường xuất hiện dịp Tết ở miền Bắc là?", a:"bánh chưng"},
+  {q:"Món bánh gói dài bằng lá chuối phổ biến ở miền Nam là?", a:"bánh tét"},
+  {q:"Loài hoa hồng phất phơ hồng thường trưng trong nhà ngày Tết miền Bắc?", a:"hoa đào"},
+  {q:"Loài hoa vàng tượng trưng miền Nam dịp Tết?", a:"hoa mai"},
+  {q:"Phong tục tặng phong bao đỏ gọi là gì?", a:"lì xì"},
+  {q:"Màu sắc thường tượng trưng may mắn trong Tết?", a:"đỏ"},
+  {q:"Tục dọn dẹp nhà trước Tết gọi là gì?", a:"tổng vệ sinh"},
+  {q:"Tục đi chùa đầu năm người ta cầu gì?", a:"bình an"},
+  {q:"Ai thường được tặng lì xì nhiều nhất?", a:"trẻ em"},
+  {q:"Từ 'xuân' nghĩa là mùa nào?", a:"mùa xuân"},
+  {q:"Vật trang trí bằng giấy có chữ Hán (thường treo ở hai bên cửa) là?", a:"câu đối"},
+  {q:"Gặp nhau đầu năm thường nói gì ngắn gọn?", a:"chúc mừng"},
+  {q:"Trò chơi 'bịt mắt đánh...' dùng vật gì để đánh?", a:"trống"},
+  {q:"Mứt làm từ gừng thường gọi là?", a:"mứt gừng"},
+  {q:"Chữ viết thường dán lên cửa để cầu phúc là?", a:"chữ phúc"},
+  {q:"Tục 'xông đất' nghĩa là?", a:"người đầu năm bước vào nhà trước"},
+  {q:"Một loại trái cây thường xuất hiện trên mâm ngũ quả miền Nam?", a:"xoài"},
+  {q:"Món chè trôi nước thành phần chính là?", a:"bột nếp"},
+  {q:"Cây kiểng phổ biến ngoài đào/mai là?", a:"cây quất"},
+  {q:"Tục mừng tuổi bằng tiền gọi là?", a:"lì xì"},
+  {q:"Món ăn chay ngày mùng 1 thường để cầu?", a:"bình an"},
+  {q:"Từ chúc thường thấy: 'Phúc - Lộc - ...' điền chữ còn lại?", a:"thọ"},
+  {q:"Người ta treo gì lên cửa để trang trí và cầu may (4 chữ)?", a:"câu đối"},
+  {q:"Màu truyền thống của phong bì lì xì?", a:"đỏ"},
+  {q:"Món ăn làm từ giò và thịt trong mâm cỗ gọi là?", a:"gio lua"},
+  {q:"Tục đón giao thừa có mục đích là?", a:"chào năm mới"},
+  {q:"Hành động cần kiêng trong ngày Tết (ví dụ) là gì?", a:"trả nợ"},
+  {q:"Truyền thống 'đi chúc Tết' thường diễn ra trong mấy ngày?", a:"vài ngày"},
+  {q:"Cây trang trí có quả nhỏ màu vàng thường đặt trong nhà là?", a:"cây quất"},
+  {q:"Từ 'Tết' bắt nguồn từ chữ nào?", a:"tiết"},
+  {q:"Thứ không thể thiếu trên mâm ngũ quả miền Nam là?", a:"xoài"},
+  {q:"Một loại mứt phổ biến khác ngoài gừng?", a:"mứt dừa"},
+  {q:"Phong tục xin chữ đầu năm thường viết bằng gì?", a:"bút lông"},
+  {q:"Trò chơi dân gian thường trong Tết là gì (ví dụ) 'kéo co' thuộc loại nào?", a:"trò chơi dân gian"},
+  {q:"Món bánh truyền thống nhân đậu xanh thường xuất hiện dịp Tết là?", a:"bánh chưng"},
+  {q:"Mọi người thường chúc nhau điều gì vào đầu năm?", a:"sức khỏe"},
+  {q:"Vật đem lại may mắn, thường treo lên cây đào/mai là?", a:"bao lì xì"},
+  {q:"Phong tục ai bước vào nhà đầu năm có thể mang lại gì?", a:"vận tốt"},
+  {q:"Màu sắc nền trang trí Tết thường lấy tông ấm là?", a:"đỏ"}
+];
+
+/* ================ Utilities =============== */
+function normalize(s){ if(!s && s !== 0) return ''; return String(s).trim().toLowerCase(); }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a; }
+function sampleArray(arr,n){ const copy=arr.slice(); shuffle(copy); return copy.slice(0,n); }
+function buildOptionsFromBank(correctAnswer, bankAnswers){
+  const uniq = [...new Set(bankAnswers.map(x=>normalize(x)).filter(x=>x && x !== normalize(correctAnswer)))];
+  shuffle(uniq);
+  const wrong1 = uniq[0] || (normalize(correctAnswer) + '1');
+  const wrong2 = uniq[1] || (normalize(correctAnswer) + '2');
+  const opts = [normalize(correctAnswer), wrong1, wrong2];
+  return shuffle(opts);
+}
+
+/* ================ State & UI refs =============== */
+let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {type1Played:false, type2Played:false, type1Reward:0, type2Success:false, timestamp:null};
+const btnType1 = document.getElementById('btnType1');
+const btnType2 = document.getElementById('btnType2');
+const submodeRow = document.getElementById('submodeRow');
+const subA = document.getElementById('subA');
+const subB = document.getElementById('subB');
+
+const questionBox = document.getElementById('questionBox');
+const timerRow = document.getElementById('timerRow');
+const timeFill = document.getElementById('timeFill');
+const timeLabel = document.getElementById('timeLabel');
+
+const choicesEl = document.getElementById('choices');
+const answerControls = document.getElementById('answerControls');
+const nextBtn = document.getElementById('nextBtn');
+
+const triedEl = document.getElementById('tried');
+const correctEl = document.getElementById('correct');
+const wrongEl = document.getElementById('wrong');
+const moneyEl = document.getElementById('money');
+const btnShowResult = document.getElementById('btnShowResult');
+const storageInfo = document.getElementById('storageInfo');
+
+/* runtime */
+let mode = null;            // 'type1' or 'type2'
+let submode = 'A';          // for type1: 'A' or 'B'
+let pool = [];              // sampled questions
+let indexQ = 0;
+let tried = 0, correct = 0, wrong = 0, money = 0;
+let lastChanceUsed = false;
+let perQuestionTimer = null;
+let timeRemaining = 0;
+
+/* ================ Helpers =============== */
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); updateStorageInfo(); }
+function updateStats(){ triedEl.textContent = tried; correctEl.textContent = correct; wrongEl.textContent = wrong; moneyEl.textContent = money.toLocaleString(); }
+function updateStorageInfo(){ storageInfo.textContent = JSON.stringify(state); }
+
+/* ================ Start modes & submode selector =============== */
+function showSubmodeRow(show){
+  submodeRow.style.display = show ? 'flex' : 'none';
+}
+function setSubmode(key){
+  submode = key;
+  subA.classList.toggle('active', key==='A');
+  subB.classList.toggle('active', key==='B');
+}
+
+/* Start mode */
+function startMode(m){
+  if (window.__IP_GUARD && window.__IP_GUARD.checked && !window.__IP_GUARD.allowed){ showPopup('Bạn không được chơi — IP/Thiết bị đã chơi trước đó.',3000); return; }
+  if (m === 'type1' && state.type1Played){ showPopup('Bạn đã chơi Dạng 1 rồi (lưu trên trình duyệt).'); return; }
+  if (m === 'type2' && state.type2Played){ showPopup('Bạn đã chơi Dạng 2 rồi (lưu trên trình duyệt).'); return; }
+
+  mode = m;
+  lastChanceUsed = false;
+  answerControls.style.display = 'flex';
+  nextBtn.style.display = 'none';
+  choicesEl.style.display = 'flex';
+  choicesEl.innerHTML = '';
+  timerRow.style.display = 'none';
+  timeFill.style.width = '0%';
+
+  if (mode === 'type1'){
+    // show submode selector
+    showSubmodeRow(true);
+    const cnt = MODE1_COUNT;
+    pool = sampleArray(TET_BANK, cnt);
+  } else {
+    showSubmodeRow(false);
+    pool = sampleArray(TET_BANK, MODE2_COUNT);
+  }
+
+  indexQ = 0; tried = 0; correct = 0; wrong = 0; money = 0;
+  renderQuestion();
+  updateStats();
+}
+
+/* ================ Rendering question =============== */
+function renderQuestion(){
+  // clear any existing timer
+  clearPerQuestionTimer();
+
+  choicesEl.innerHTML = '';
+  if (indexQ >= pool.length){
+    endModeNormally();
+    return;
+  }
+
+  const item = pool[indexQ];
+  questionBox.textContent = `Câu ${indexQ+1} / ${pool.length}: ${item.q}`;
+
+  // If Dạng1B (submode B), show timer bar and start timer
+  if (mode === 'type1' && submode === 'B'){
+    timerRow.style.display = 'flex';
+    startPerQuestionTimer(TIME_B);
+  } else {
+    timerRow.style.display = 'none';
+    timeFill.style.width = '0%';
+  }
+
+  // Build options from bank
+  const otherAnswers = pool.map(x=>x.a).concat(TET_BANK.map(x=>x.a));
+  const opts = buildOptionsFromBank(item.a, otherAnswers);
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.type = 'button';
+    btn.innerText = opt;
+    btn.dataset.value = opt;
+    btn.addEventListener('click', () => handleChoice(btn));
+    choicesEl.appendChild(btn);
+  });
+}
+
+/* ================ Timer logic for per-question (submode B) =============== */
+function startPerQuestionTimer(seconds){
+  clearPerQuestionTimer();
+  timeRemaining = seconds;
+  updateTimeFill();
+  perQuestionTimer = setInterval(() => {
+    timeRemaining -= 0.2; // update every 200ms for smoothness
+    if (timeRemaining <= 0){
+      clearPerQuestionTimer();
+      timeRemaining = 0;
+      updateTimeFill();
+      // treat as wrong due to timeout
+      handleTimeoutAsWrong();
+    } else {
+      updateTimeFill();
+    }
+  }, 200);
+}
+function updateTimeFill(){
+  const total = TIME_B;
+  const pct = Math.max(0, Math.min(1, timeRemaining / total)) * 100;
+  timeFill.style.width = pct + '%';
+  timeLabel.textContent = `Thời gian còn lại: ${Math.ceil(timeRemaining)}s`;
+}
+function clearPerQuestionTimer(){ if (perQuestionTimer) { clearInterval(perQuestionTimer); perQuestionTimer = null; } }
+
+/* When timeout happens treat as wrong selection (but allow last chance if available) */
+function handleTimeoutAsWrong(){
+  // disable choices
+  const children = Array.from(choicesEl.querySelectorAll('button'));
+  children.forEach(b => b.disabled = true);
+
+  // If last chance not used, prompt to use it (reset question)
+  if (!lastChanceUsed){
+    const use = confirm('Hết giờ! Muốn dùng 1 CƠ HỘI CUỐI để reset câu hỏi và thử lại không? (chỉ 1 lần duy nhất)');
+    if (use){
+      lastChanceUsed = true;
+      showPopup('Cơ hội cuối đã được kích hoạt — câu hỏi sẽ được làm mới để bạn thử lại!', 1600);
+      setTimeout(()=> renderQuestion(), 350);
+      return;
+    }
+  }
+
+  // count as wrong
+  tried++;
+  wrong++;
+  playSound('wrong');
+  showPopup('Hết giờ — Câu này bị tính sai!', 1600);
+
+  if (mode === 'type2'){
+    // convert to type1 award logic (same as before)
+    const awardCount = Math.min(correct, 10);
+    const awardMoney = awardCount * MONEY_A;
+    state.type2Played = true; state.type2Success = false; state.type1Played = true;
+    state.type1Reward = (state.type1Reward || 0) + awardMoney;
+    state.timestamp = Date.now();
+    saveState();
+    try{ savePlayed(window.__IP_GUARD && window.__IP_GUARD.ip, 'type1'); }catch(e){}
+    money = awardMoney;
+    updateStats();
+    showPopup(`Bạn đã hết giờ 1 câu trong Dạng 2. Được tính như Dạng 1: ${awardMoney.toLocaleString()}₫ cho ${awardCount} câu đúng.`, 4200);
+    endModeAbrupt();
+    return;
+  } else {
+    // mode1: skip to next
+    indexQ++;
+    updateStats();
+    nextBtn.style.display = 'inline-block';
+    nextBtn.onclick = ()=> { nextBtn.style.display='none'; renderQuestion(); };
+    if (indexQ >= pool.length){
+      state.type1Played = true;
+      state.type1Reward = (state.type1Reward || 0) + money;
+      state.timestamp = Date.now();
+      saveState();
+      try{ savePlayed(window.__IP_GUARD && window.__IP_GUARD.ip, 'type1'); }catch(e){}
+      endModeNormally();
+    }
+  }
+}
+
+/* ================ Handle answer selection =============== */
+function handleChoice(btn){
+  AudioEngine.ensure();
+  // stop timer if running
+  clearPerQuestionTimer();
+
+  const children = Array.from(choicesEl.querySelectorAll('button'));
+  children.forEach(b => b.disabled = true);
+
+  const selected = normalize(btn.dataset.value);
+  const correctAns = normalize(pool[indexQ].a);
+
+  if (selected === correctAns){
+    tried++;
+    btn.classList.add('correct');
+    correct++;
+    playSound('correct');
+
+    // award money based on submode if type1, else no money for type2
+    if (mode === 'type1'){
+      if (submode === 'A') { money += MONEY_A; showPopup('Chính xác! +' + MONEY_A + '₫', 900); }
+      else { money += MONEY_B; showPopup('Chính xác! +' + MONEY_B + '₫', 900); }
+    } else {
+      showPopup('Chính xác!', 900);
+    }
+
+    indexQ++;
+    updateStats();
+
+    if (mode === 'type2' && indexQ >= pool.length){
+  state.type2Played = true; 
+  state.type2Success = true; 
+  state.timestamp = Date.now(); 
+  saveState();
+
+  try { 
+    savePlayed(window.__IP_GUARD && window.__IP_GUARD.ip, 'type2'); 
+  } catch(e){}
+
+  playSound('success');
+
+  // Tạo overlay đếm ngược
+  const overlay = document.createElement('div');
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100%';
+  overlay.style.height = '100%';
+  overlay.style.background = 'rgba(0,0,0,0.7)';
+  overlay.style.color = 'white';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.fontSize = '24px';
+  overlay.style.zIndex = '9999';
+
+  let counter = 3; // 3 giây
+  overlay.innerText = `Chuyển trang sau ${counter} giây...`;
+  document.body.appendChild(overlay);
+
+  const interval = setInterval(() => {
+    counter--;
+    if(counter > 0){
+      overlay.innerText = `Chuyển trang sau ${counter} giây...`;
+    } else {
+      clearInterval(interval);
+      window.location.href = "hailoc.html"; // redirect thực sự
+    }
+  }, 1000);
+
+  return;
+}
+
+
+    nextBtn.style.display = 'inline-block';
+    nextBtn.onclick = () => { nextBtn.style.display='none'; renderQuestion(); };
+    return;
+  }
+
+  // WRONG
+  // If last chance not used, offer to use it and reset current question (reshuffle options)
+  if (!lastChanceUsed){
+    const use = confirm('Bạn trả lời sai. Muốn dùng 1 CƠ HỘI CUỐI để reset câu hỏi (tạo lại đáp án ngẫu nhiên) và thử lại không? (chỉ 1 lần duy nhất)');
+    if (use){
+      lastChanceUsed = true;
+      showPopup('Cơ hội cuối đã được kích hoạt — câu hỏi sẽ được làm mới để bạn thử lại!', 1600);
+      setTimeout(()=> renderQuestion(), 350);
+      return;
+    }
+  }
+
+  // Otherwise count as wrong
+  tried++;
+  wrong++;
+  btn.classList.add('wrong');
+  playSound('wrong');
+  showPopup('Sai! Câu này sẽ bị khóa.', 1400);
+
+  if (mode === 'type2'){
+    // convert to type1 award
+    const awardCount = Math.min(correct, 10);
+    const awardMoney = awardCount * MONEY_A;
+    state.type2Played = true; state.type2Success = false; state.type1Played = true;
+    state.type1Reward = (state.type1Reward || 0) + awardMoney;
+    state.timestamp = Date.now();
+    saveState();
+    try{ savePlayed(window.__IP_GUARD && window.__IP_GUARD.ip, 'type1'); }catch(e){}
+    money = awardMoney;
+    updateStats();
+    showPopup(`Bạn đã sai 1 câu trong Dạng 2. Được tính như Dạng 1: ${awardMoney.toLocaleString()}₫ cho ${awardCount} câu đúng.`, 4200);
+    endModeAbrupt();
+    return;
+  } else {
+    // mode1: skip to next
+    indexQ++;
+    updateStats();
+    nextBtn.style.display = 'inline-block';
+    nextBtn.onclick = () => { nextBtn.style.display='none'; renderQuestion(); };
+    if (indexQ >= pool.length){
+      state.type1Played = true;
+      state.type1Reward = (state.type1Reward || 0) + money;
+      state.timestamp = Date.now();
+      saveState();
+      try{ savePlayed(window.__IP_GUARD && window.__IP_GUARD.ip, 'type1'); }catch(e){}
+      endModeNormally();
+    }
+    return;
+  }
+}
+
+/* ================ End flows =============== */
+function endModeNormally(){
+  clearPerQuestionTimer();
+  if (mode === 'type1'){
+    state.type1Played = true;
+    state.type1Reward = (state.type1Reward || 0) + money;
+    state.timestamp = Date.now();
+    saveState();
+    try{ savePlayed(window.__IP_GUARD && window.__IP_GUARD.ip, 'type1'); }catch(e){}
+    showPopup(`Hoàn tất Dạng 1 — Bạn kiếm được ${money.toLocaleString()}₫! (Đã lưu)`, 3500);
+  } else if (mode === 'type2'){
+    showPopup('Kết thúc Dạng 2.', 1800);
+  }
+  answerControls.style.display = 'none';
+  choicesEl.style.display = 'none';
+  questionBox.textContent = 'Chọn chế độ để bắt đầu chơi.';
+  timerRow.style.display = 'none';
+  mode = null;
+  updateStats();
+}
+
+function endModeAbrupt(){
+  clearPerQuestionTimer();
+  answerControls.style.display = 'none';
+  choicesEl.style.display = 'none';
+  questionBox.textContent = 'Kết thúc vòng chơi.';
+  timerRow.style.display = 'none';
+  mode = null;
+  updateStats();
+}
+
+/* ================ UI wiring =============== */
+document.getElementById('btnShowResult').addEventListener('click', ()=>{
+  if (state.type1Played || state.type2Played){
+    const parts = [];
+    if (state.type1Played) parts.push(`Dạng 1: đã chơi — tiền nhận: ${(state.type1Reward||0).toLocaleString()}₫`);
+    if (state.type2Played) parts.push(`Dạng 2: đã chơi — thành công: ${state.type2Success ? 'Có (đã chuyển trang)' : 'Không'}`);
+    showPopup(parts.join(' • '), 4000);
+  } else {
+    showPopup('Bạn chưa chơi gì cả. Chọn chế độ để bắt đầu!',1600);
+  }
+});
+
+/* Mode & submode buttons */
+btnType1.addEventListener('click', ()=> {
+  btnType1.classList.remove('ghost');
+  btnType2.classList.add('ghost');
+  showSubmodeRow(true);
+  setSubmode('A');
+  startMode('type1');
+});
+btnType2.addEventListener('click', ()=> {
+  btnType2.classList.remove('ghost');
+  btnType1.classList.add('ghost');
+  showSubmodeRow(false);
+  startMode('type2');
+});
+
+subA.addEventListener('click', ()=> { setSubmode('A'); showPopup('Bạn chọn Dạng 1A (mỗi câu +500₫)', 1200); });
+subB.addEventListener('click', ()=> { setSubmode('B'); showPopup('Bạn chọn Dạng 1B (mỗi câu +800₫, 12s/câu)', 1200); });
+
+/* Next button */
+nextBtn.addEventListener('click', ()=> {
+  nextBtn.style.display = 'none';
+  renderQuestion();
+});
+
+/* initial UI */
+updateStats();
+updateStorageInfo();
+if (state.type1Played || state.type2Played){
+  if (state.type1Played) showPopup(`Bạn đã từng chơi Dạng 1 — tiền nhận: ${(state.type1Reward||0).toLocaleString()}₫`, 3000);
+  if (state.type2Played && state.type2Success) showPopup('Bạn đã hoàn thành Dạng 2 trước đó.', 3000);
+}
+
+/* small helper: saveState */
+function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); updateStorageInfo(); }
+
+</script>
+</body>
+</html>

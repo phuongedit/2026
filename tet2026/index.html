@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CountDown</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="css/configClock/timeRemain.css" />
+        <link rel="stylesheet" type="text/css" href="css/index.css" />
+        <link href="https://fonts.googleapis.com/css?family=Baloo+Bhai&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <!-- <div class="background-website"></div> -->
+        <div class="contain-tree-flower">
+            <img class="tree-flower" src="imgs/hoa-dao2.png" />
+            <img class="lentern" src="imgs/long-den2.png" />
+            <img class="lentern" src="imgs/long-den3.png" />
+            <img class="lentern" src="imgs/long-den4.png" />
+        </div>
+        <div class="contain-tree-flower">
+            <img class="tree-flower" src="imgs/hoa-mai.png" />
+            <img class="lentern" src="imgs/long-den2.png" />
+            <img class="lentern" src="imgs/long-den3.png" />
+            <img class="lentern" src="imgs/long-den4.png" />
+        </div>
+        <div class="sky"></div>
+        <img class="family" src="imgs/family.png" />
+        <img class="family" src="imgs/family-goi-banh.png" />
+        <img class="textTet" src="imgs/tet.png" />
+        <img class="number" src="imgs/2_1.png" />
+        <img class="number" src="imgs/0_1.png" />
+        <img class="number" src="imgs/2_2.png" />
+        <img class="number" src="imgs/0_2.png" />
+        <img class="slogan" src="imgs/slogan.png" />
+        <div class="clock">
+            <div class="viewTime">
+                <div id="dateRemain" class="time-remain">
+                    <p>Day</p>
+                    <div id="dateRemain_1" class="element-time"> </div>
+                    <div id="dateRemain_2" class="element-time"> </div>
+                </div>
+                <div id="hoursRemain" class="time-remain">
+                    <p>Hours</p>
+                    <div id="hoursRemain_1" class="element-time"> </div>
+                    <div id="hoursRemain_2" class="element-time"> </div>
+                </div>
+                <div class="hai-cham">
+                    <p>:</p>
+                </div>
+                <div id="minutesRemain" class="time-remain">
+                    <p>Min</p>
+                    <div id="minutesRemain_1" class="element-time"> </div>
+                    <div id="minutesRemain_2" class="element-time"> </div>
+                </div>
+                <div class="hai-cham">
+                    <p>:</p>
+                </div>
+                <div id="secondsRemain" class="time-remain">
+                    <p>Seconds</p>
+                    <div id="secondsRemain_1" class="element-time"> </div>
+                    <div id="secondsRemain_2" class="element-time"> </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="setting">
+            <img class="icon-setting" src="imgs/settings.png" />
+            <audio src="mp3/ConBuomXuan-HoQuangHieu-2577880.mp3" controls="controls"></audio>
+        </div> -->
+       <audio id="tetMusic"
+       src="https://ia800606.us.archive.org/27/items/tet-dong-day-khoa-tet-viet-nct-choice-v.-a-playlist-nhac-cua-tui/T%E1%BA%BFt%20%C4%90ong%20%C4%90%E1%BA%A7y%20-%20KHOA%20-%20T%E1%BA%BFt%20Vi%E1%BB%87t-%20NCT%20Choice%20-%20V.A%20-%20Playlist%20NhacCuaTui.mp3"
+       autoplay
+       loop
+       muted>
+       </audio>
+       <script>
+window.addEventListener('load', () => {
+  const music = document.getElementById('tetMusic');
+  music.volume = 0; // bắt đầu nhỏ tiếng
+  music.play().then(() => {
+    console.log("🎵 Nhạc Tết đang phát (ban đầu tắt tiếng)");
+    // sau 1s bỏ mute
+    setTimeout(() => {
+      music.muted = false;
+      // Tăng dần âm lượng êm ái trong 3 giây
+      let vol = 0;
+      const fade = setInterval(() => {
+        if (vol < 1) {
+          vol += 0.05;
+          music.volume = vol;
+        } else {
+          clearInterval(fade);
+        }
+      }, 150); // tăng mỗi 150ms
+    }, 1000);
+  }).catch(err => {
+    console.log("⚠️ Autoplay bị chặn:", err);
+    // Nếu bị chặn, chờ người dùng click
+    const enableMusic = () => {
+      music.muted = false;
+      music.volume = 1;
+      music.play();
+      document.removeEventListener('click', enableMusic);
+    };
+    document.addEventListener('click', enableMusic);
+  });
+});
+</script>
+
+    </body>
+    <script src="js/displayAll.js"></script>
+    <script src="js/objectFly/configFly.js"></script>
+    <script src="js/configClock/remainTime.js"></script>
+    <script src="js/configClock/countDown.js"></script>
+    <script src="js/configClock/viewRemainTime.js"></script>
+    <script src="js/configClock/displayClock.js"></script>
+    <script src="js/objectFly/flowerFly.js"></script>
+    <script src="js/objectFly/lenternFly.js"></script>
+</html>
